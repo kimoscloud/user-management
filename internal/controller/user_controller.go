@@ -51,8 +51,20 @@ func (u UserController) InitRouter() {
 	{
 		secured.GET("/me", u.me)
 		secured.PUT("/me", u.updateProfile)
+		secured.GET("/:userId", u.getUserById)
 		secured.POST("/password", u.changePassword)
 	}
+
+}
+
+func (u UserController) getUserById(c *gin.Context) {
+	userId := c.Param("userId")
+	result, appError := u.getUserUseCase.Handler(userId)
+	if appError != nil {
+		c.AbortWithStatusJSON(appError.HTTPStatus, appError)
+		return
+	}
+	c.JSON(http.StatusOK, result)
 }
 
 func (u UserController) login(c *gin.Context) {

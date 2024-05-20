@@ -45,5 +45,6 @@ func (p *GetUserUseCase) Handler(id string) (
 		Email:     result.Email,
 		LastLogin: result.LastLogin,
 		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
 	}, nil
 }
