@@ -2,5 +2,4 @@ package errors
 
 import "github.com/kimoscloud/value-types/errors"
 
-const ErrorUserAuthenticatedNotFound errors.ErrorCode = "0000007"
-const ErrorUserEmailAlreadyExists errors.ErrorCode = "0000008"
+const ErrorGettingUserListByIds errors.ErrorCode = "100000001"
