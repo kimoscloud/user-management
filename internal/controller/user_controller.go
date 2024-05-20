@@ -19,6 +19,7 @@ type UserController struct {
 	getUserUseCase           *usecase.GetUserUseCase
 	updateUserProfileUseCase *usecase.UpdateUserProfileUseCase
 	changePasswordUseCase    *usecase.ChangePasswordUseCase
+	getUSerListByIdsUseCase  *usecase.GetUSerListByIdsUseCase
 	logger                   logging.Logger
 }
 
@@ -30,6 +31,7 @@ func NewUserController(
 	getUserUseCase *usecase.GetUserUseCase,
 	updateUserProfileUseCase *usecase.UpdateUserProfileUseCase,
 	changePasswordUseCase *usecase.ChangePasswordUseCase,
+	getUsersUseCase *usecase.GetUSerListByIdsUseCase,
 ) UserController {
 	return UserController{
 		gin:                      gin,
@@ -39,17 +41,19 @@ func NewUserController(
 		getUserUseCase:           getUserUseCase,
 		updateUserProfileUseCase: updateUserProfileUseCase,
 		changePasswordUseCase:    changePasswordUseCase,
+		getUSerListByIdsUseCase:  getUsersUseCase,
 	}
 }
 
 func (u UserController) InitRouter() {
-	api := u.gin.Group("/api/v1/users")
+	api := u.gin.Group("/api/v1/auth")
 	api.POST("/signup", u.signUp)
 	api.POST("/login", u.login)
-	api.GET("/validate-token", u.validateToken)
+	api.POST("/validate-token", u.validateToken)
 	secured := api.Group("", middleware.Auth())
 	{
 		secured.GET("/me", u.me)
+		//api.GET("/users", middleware.CheckInternalClient(), u.getListByIds)
 		secured.PUT("/me", u.updateProfile)
 		secured.GET("/:userId", u.getUserById)
 		secured.POST("/password", u.changePassword)
@@ -78,6 +82,25 @@ func (u UserController) login(c *gin.Context) {
 		return
 	}
 	result, appError := u.authenticateUserUseCase.Handler(*signInRequest)
+	if appError != nil {
+		c.AbortWithStatusJSON(appError.HTTPStatus, appError)
+		return
+	}
+	c.JSON(http.StatusOK, result)
+	return
+}
+
+func (u UserController) getListByIds(c *gin.Context) {
+	ids := c.QueryArray("ids")
+	if len(ids) == 0 {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest, &gin.H{
+				"message": "Invalid request",
+			},
+		)
+		return
+	}
+	result, appError := u.getUSerListByIdsUseCase.Handler(ids)
 	if appError != nil {
 		c.AbortWithStatusJSON(appError.HTTPStatus, appError)
 		return

@@ -105,6 +105,7 @@ func initUserController(
 	logger logging2.Logger,
 ) {
 	createUserUseCase := usecase.NewCreateUserUseCase(userRepo, logger)
+	getUsesByIdsUseCase := usecase.NewGetUSerListByIdsUseCase(userRepo, logger)
 	authenticateUserUseCase := usecase.NewAuthenticateUserUseCase(
 		userRepo,
 		logger,
@@ -128,6 +129,7 @@ func initUserController(
 		getUserUseCase,
 		updateUserProfileUseCase,
 		changePasswordUseCase,
+		getUsesByIdsUseCase,
 	)
 	userController.InitRouter()
 }
